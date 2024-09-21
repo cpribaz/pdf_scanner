@@ -7,22 +7,26 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>PDF Keyword Scanner</h1>
+    <div class="header">
+        <h1>PDF Keyword Scanner</h1>
+        <p>Upload your PDF and enter keywords to scan.</p>
+    </div>
 
-    <form id="pdf-form" enctype="multipart/form-data">
+    <form id="pdf-form" class="form" action="/scan-pdf" method="POST" enctype="multipart/form-data">
         <label for="pdf-file">Upload PDF:</label>
-        <input type="file" id="pdf-file" accept="application/pdf" required>
+        <input type="file" id="pdf-file" name="pdf" accept="application/pdf" required>
         
         <label for="keywords">Enter Keywords (comma-separated):</label>
-        <input type="text" id="keywords" placeholder="Enter keywords" required>
+        <input type="text" id="keywords" name="keywords" placeholder="Enter keywords" required>
         
         <button type="submit">Scan PDF</button>
-    </form>
+    </form>    
 
-    <div id="results">
+    <div id="results" class="results">
         <!-- Results will be displayed here -->
     </div>
 
     <script src="script.js"></script>
 </body>
 </html>
+

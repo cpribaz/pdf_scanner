@@ -1,39 +1,42 @@
 from flask import Flask, request, jsonify
-import fitz  # PyMuPDF to handle PDFs
+from flask_cors import CORS  # Import CORS
+from PyPDF2 import PdfReader
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 @app.route('/scan-pdf', methods=['POST'])
 def scan_pdf():
     if 'pdf' not in request.files or 'keywords' not in request.form:
         return jsonify({"error": "PDF file and keywords are required"}), 400
 
+    # Get the PDF file and keywords
     pdf_file = request.files['pdf']
     keywords = request.form['keywords'].split(',')
 
-    # Load the PDF
-    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
-    
+    # Load the PDF file
+    reader = PdfReader(pdf_file)
+    num_pages = len(reader.pages)
+
     results = []
 
-    # Search for keywords across all pages
-    for page_num in range(doc.page_count):
-        page = doc.load_page(page_num)
-        text = page.get_text("text")
-
+    # Search through the PDF
+    for i in range(num_pages):
+        page = reader.pages[i]
+        text = page.extract_text()
+        
         for keyword in keywords:
             if keyword.lower() in text.lower():
-                # Extract a small excerpt
-                index = text.lower().find(keyword.lower())
-                excerpt = text[max(0, index - 50):index + len(keyword) + 50]
-                
+                start = max(0, text.lower().find(keyword.lower()) - 30)
+                end = min(len(text), start + 60)
+                excerpt = text[start:end]
                 results.append({
                     "keyword": keyword,
-                    "page": page_num + 1,  # Page numbers are 1-indexed
-                    "excerpt": excerpt.strip()
+                    "page": i + 1,
+                    "excerpt": excerpt
                 })
 
-    return jsonify(results)
+    return jsonify({"results": results})
 
 if __name__ == '__main__':
     app.run(debug=True)

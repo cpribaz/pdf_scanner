@@ -1,45 +1,36 @@
-document.getElementById('pdf-form').addEventListener('submit', async function (event) {
+document.getElementById('pdf-form').addEventListener('submit', async function(event) {
     event.preventDefault();
 
-    const pdfFile = document.getElementById('pdf-file').files[0];
-    const keywords = document.getElementById('keywords').value;
-
-    if (!pdfFile || !keywords) {
-        alert('Please upload a PDF and enter keywords.');
-        return;
-    }
-
-    // Create form data to send to backend
     const formData = new FormData();
-    formData.append('pdf', pdfFile);
-    formData.append('keywords', keywords);
+    formData.append('pdf', document.getElementById('pdf-file').files[0]);
+    formData.append('keywords', document.getElementById('keywords').value);
 
-    // Send request to backend
-    const response = await fetch('/scan-pdf', {
-        method: 'POST',
-        body: formData,
-    });
+    try {
+        const response = await fetch('http://127.0.0.1:5000/scan-pdf', { 
+            method: 'POST',
+            body: formData
+        });
+        
 
-    const result = await response.json();
-
-    // Display results
-    displayResults(result);
+        const data = await response.json();
+        displayResults(data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
 });
 
-function displayResults(result) {
+function displayResults(data) {
     const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = ''; // Clear previous results
+    resultsDiv.innerHTML = '';
 
-    if (result.error) {
-        resultsDiv.textContent = result.error;
-        return;
+    if (data.results.length > 0) {
+        data.results.forEach(result => {
+            const resultDiv = document.createElement('div');
+            resultDiv.innerHTML = `<p>Keyword: ${result.keyword}, Page: ${result.page}, Excerpt: ${result.excerpt}</p>`;
+            resultsDiv.appendChild(resultDiv);
+        });
+    } else {
+        resultsDiv.innerHTML = '<p>No keywords found.</p>';
     }
-
-    result.forEach((entry) => {
-        const div = document.createElement('div');
-        div.innerHTML = `<strong>Keyword:</strong> ${entry.keyword}<br>
-                        <strong>Page:</strong> ${entry.page}<br>
-                        <strong>Excerpt:</strong> ${entry.excerpt}`;
-        resultsDiv.appendChild(div);
-    });
 }
+
