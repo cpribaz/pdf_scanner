@@ -9,12 +9,12 @@
 <body>
     <h1>PDF Keyword Scanner</h1>
 
-    <form id="pdf-form">
+    <form id="pdf-form" enctype="multipart/form-data">
         <label for="pdf-file">Upload PDF:</label>
-        <input type="file" id="pdf-file" accept="application/pdf">
+        <input type="file" id="pdf-file" accept="application/pdf" required>
         
         <label for="keywords">Enter Keywords (comma-separated):</label>
-        <input type="text" id="keywords" placeholder="Enter keywords">
+        <input type="text" id="keywords" placeholder="Enter keywords" required>
         
         <button type="submit">Scan PDF</button>
     </form>
